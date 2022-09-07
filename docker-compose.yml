@@ -3,9 +3,7 @@ version: '3'
 services:
   transcriber:
     build: .
-    command: /bin/bash
-    stdin_open: true
-    tty: true
+    command: python /srv/code/listener.py 
     volumes:
       - ./code:/srv/code
     env_file:

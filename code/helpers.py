@@ -11,6 +11,7 @@ from datetime import datetime
 import uuid
 import requests
 import time
+import io
 
 def process_image(image_path):
     log = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ def process_image(image_path):
 
     if requests.get(image_uri).status_code == 200:
         time.sleep(5)  # Sometimes google is slow
-        ocr_text = gv_ocr(image_uri) 
+        ocr_text = gv_ocr(image_uri, log) 
     else:
         Exception(f'File has been removed {image_uri}')
     
@@ -55,13 +56,20 @@ def is_uuid4(test_uuid, version=4):
     except ValueError:
         return False
 
-def gv_ocr(image_uri):
+def gv_ocr(image_uri, log):
     gvclient = vision.ImageAnnotatorClient()
     image = vision.Image()
     image.source.image_uri = image_uri
     response = gvclient.document_text_detection(image=image)
+
     if response.error.code:
-        raise Exception(f"Error from Google Cloud Vision - {response.error}")
+        log.error(f'Error from Google Cloud Vision - {response.error}')
+        with io.open(image_uri, 'rb') as image_file:
+                content = image_file.read()
+                image = vision.Image(content=content)
+                response = gvclient.document_text_detection(image=image)
+                if response.error.code:
+                    raise Exception(f"Error from Google Cloud Vision - {response.error}")
         
     return response.full_text_annotation
 
@@ -93,10 +101,8 @@ def append_to_ipt_source_file(institution, dwc):
             appended.to_csv('/srv/code/source.txt', encoding='utf-8', index=False) # appended.iloc[-1:].to_csv('/srv/code/source.txt', encoding='utf-8', index=False, header=False)
 
             client = Minio(os.getenv('MINIO_URI'), access_key=os.getenv('MINIO_ACCESS_KEY'), secret_key=os.getenv('MINIO_SECRET_KEY'))
-            client.fput_object(os.getenv('MINIO_IPT_BUCKET'), f'{path}/source.txt', '/srv/code/source.txt', content_type='text/plain')
-            return True
+            return client.fput_object(os.getenv('MINIO_IPT_BUCKET'), f'{path}/source.txt', '/srv/code/source.txt', content_type='text/plain')
         else:
-            import pdb; pdb.set_trace()
             Exception(f"Duplicate occurrence ID: {institution} - {path}, {dwc['occurrenceID']}")
     else:
         Exception(f"No occurrence ID in source file: {institution} - {path}, {source.columns}")
