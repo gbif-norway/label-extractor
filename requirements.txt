@@ -1,0 +1,10 @@
+cyrtranslit==1.0
+google-auth==1.35.0
+google-cloud-core==1.7.3
+google-cloud-translate==2.0.1
+google-cloud-vision==3.1.1
+minio==7.1.11
+nltk==3.7
+pyzbar==0.1.9
+scikit-image==0.19.3
+pandas==1.4.4

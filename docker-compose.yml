@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  transcriber:
+    build: .
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./code:/srv/code
+    env_file:
+      - .env
