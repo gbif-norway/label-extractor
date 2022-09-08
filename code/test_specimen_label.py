@@ -30,8 +30,22 @@ class ExtractScientificName(unittest.TestCase):
         self.assertEqual(label.label_contents, 'Collected by A. Person')
 
 
-class FindHumanName(unittest.TestCase):
-    pass
+class Elevation(unittest.TestCase):
+    def test_simple_cases(self):
+        tests = [
+            'This species was collected at 881 m and ',
+            'Text text Alt: 881m',
+            'Altitude 881 m',
+            'Alt 881'
+        ]
+        for test in tests:
+            self.assertEqual(test, '881 m')
+
+class Names(unittest.TestCase):
+    def test_simple_cases(self):
+        #label = _make_specimen('coll. B. A. Sharipov and some more text')
+        #self.assertEqual(label.dwc['recordedBy'], 'B. A. Sharipov and some more text')
+        pass
 
 
 if __name__ == "__main__":

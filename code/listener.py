@@ -7,8 +7,6 @@ from urllib3.exceptions import ReadTimeoutError
 
 def listen():
     log = logging.getLogger(__name__)
-    log.setLevel(logging.INFO)
-
     log.info(f"Listening to {os.getenv('MINIO_URI')} / os.getenv('MINIO_SOURCE_BUCKET') ...")
     client = Minio(os.getenv('MINIO_URI'), access_key=os.getenv('MINIO_ACCESS_KEY'), secret_key=os.getenv('MINIO_SECRET_KEY'))
 

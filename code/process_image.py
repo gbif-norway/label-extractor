@@ -6,7 +6,6 @@ import helpers
 
 def process_image(image_path):
     log = logging.getLogger(__name__)
-    log.setLevel(logging.INFO)
     log.info(f'Processing image - {image_path}')
     institution, genus, original_image_name = image_path.split('/')
 

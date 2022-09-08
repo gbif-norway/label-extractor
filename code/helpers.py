@@ -35,9 +35,8 @@ def is_uuid4(test_uuid, version=4):
     except ValueError:
         return False
 
-def gv_ocr(image_uri, log):
+def gv_ocr(image_uri):
     log = logging.getLogger(__name__)
-    log.setLevel(logging.INFO)
 
     gvclient = vision.ImageAnnotatorClient()
     image = vision.Image()
@@ -72,7 +71,13 @@ def sort_and_flatten(document):
             blocks.append(b)
     
     sorted_blocks = sorted(blocks, key=lambda x: x['top'])
-    return '\n'.join([b['text'] for b in sorted_blocks])
+    ruler_index = next((i for i, el in enumerate(sorted_blocks) if text_contains_ruler(el['text'])), len(sorted_blocks))
+    logging.getLogger(__name__).info(f'Processing OCRed text and discarded from block {ruler_index}: {sorted_blocks[ruler_index:]}')
+
+    return '\n'.join([b['text'] for b in sorted_blocks[0:ruler_index]])
+
+def text_contains_ruler(text):
+    return 'MADE IN CHINA' in text or 'HORSE BRAND' in text
 
 def uuid_already_exists(source, uuid):
     if 'occurrenceID' in source.columns:
@@ -100,20 +105,31 @@ def move_and_rename(image_path, new_image_path):
     client.copy_object(os.getenv('MINIO_TARGET_BUCKET'), new_image_path, CopySource(os.getenv('MINIO_SOURCE_BUCKET'), image_path))
     client.remove_object(os.getenv('MINIO_SOURCE_BUCKET'), image_path)
 
-
 def gtranslate(text):
     log = logging.getLogger(__name__)
-    log.setLevel(logging.INFO)
     translate_client = translate.Client()
-
-    # Text can also be a sequence of strings, in which case this method
-    # will return a sequence of results for each text.
     result = translate_client.translate(text, target_language='en')
 
     log.info(u"Text: {}".format(result["input"]))
     log.info(u"Translation: {}".format(result["translatedText"]))
     log.info(u"Detected source language: {}".format(result["detectedSourceLanguage"]))
-    
-    log.info(f'Successfully translated')
-
     return result["translatedText"]
+
+def find_human_names(text):
+    import nltk
+    nltk.download('punkt')
+    nltk.download('averaged_perceptron_tagger')
+    nltk.download('maxent_ne_chunker')
+    nltk.download('words')
+    from nltk import ne_chunk, pos_tag, word_tokenize
+    from nltk.tree import Tree
+
+    nltk_results = ne_chunk(pos_tag(word_tokenize(text)))
+    names = []
+    for nltk_result in nltk_results:
+        if type(nltk_result) == Tree:
+            name = ''
+            for nltk_result_leaf in nltk_result.leaves():
+                name += nltk_result_leaf[0] + ' '
+            names.append(name)
+    return ' | '.join(names)

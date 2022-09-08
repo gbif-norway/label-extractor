@@ -4,7 +4,9 @@ import nltk
 import numpy as np
 import pickle
 import logging
-from helpers import gtranslate
+from helpers import gtranslate, find_human_names
+import pycountry
+import json
 
 
 with open('/srv/code/genera.pkl', 'rb') as f:
@@ -15,14 +17,12 @@ class SpecimenLabel:
         self.label_contents = verbatim
         self.dets = self._extract_dets()  # Determinations, how are we supposed to handle these in dwc?
         
-        verbatim = verbatim.replace('\n', '#')
         self.dwc = {
             'institutionCode': institution,
             'catalogNumber': catalog_number,
             'genus': genus,
             'occurrenceID': uuid,
             'associatedMedia': associated_media_uri,
-            'dynamicProperties': f"verbatimTranscription: {verbatim} | verbatimTransliteration: {cyrtranslit.to_latin(verbatim, 'ru')}"
         }
         self.dwc['verbatimIdentification'] = self._extract_verbatim_identification(self.label_contents, genus)
         if self.dwc['verbatimIdentification']:
@@ -30,8 +30,18 @@ class SpecimenLabel:
         self.dwc['minimumElevationInMeters'], self.dwc['maximumElevationInMeters'], self.dwc['verbatimElevation'] = self._extract_elevation()
         self.dwc['recordNumber'] = self._extract_record_number()
         self.dwc['year'] = self._extract_year() # self.dwc['month'],  self.dwc['day'], self.dwc['verbatimEventDate']
-        self.dwc['recordedBy'] = self._extract_names()
-        self.dwc['verbatimLocality'] = self.label_contents.replace('\n', '#')
+
+        lines_for_translation = self.label_contents.split('Plantae Tadshikistan')[0].split('\n')
+        translated = gtranslate(' '.join(lines_for_translation))
+        self.dwc['recordedBy'] = self._extract_names(translated)
+        self.dwc['country'] = self._extract_country(translated)
+
+        dynamicProperties = {
+            'verbatimTranscription': verbatim.replace('\n', '#'),
+            'verbatimTransliteration': cyrtranslit.to_latin(verbatim.replace('\n', ' '), 'ru'),
+            'verbatimTranslation': translated
+        }
+        self.dwc['dynamicProperties'] = json.dumps(dynamicProperties, ensure_ascii=False).encode('utf8').decode()
 
     def _extract_dets(self):
         return None
@@ -100,15 +110,15 @@ class SpecimenLabel:
         numbers = '((\d[\d\s]*)*(\s*-([\d\s]+))?)\s*(([mм])|(ft))?\s*'
         matches = re.search('alt(itude)?[\.\s\:]*' + numbers, self.label_contents, re.IGNORECASE)
         if matches:
-            if matches.group(2) is not None:
-                self.label_contents = self.label_contents.replace(matches.group(0), '')
+            if matches.group(2):
+                #self.label_contents = self.label_contents.replace(matches.group(0), '')
                 return matches.group(2), matches.group(4), matches.group(0).strip()
 
         matches = re.search('\s' + numbers, self.label_contents, flags=re.IGNORECASE|re.UNICODE)
         if matches:
-            self.label_contents = self.label_contents.replace(matches.group(0), '')
-            if matches.group(2) is not None:
+            if matches.group(2):
                 if matches.group(5):  # meters
+                    #self.label_contents = self.label_contents.replace(matches.group(0), '')
                     return matches.group(2), matches.group(4), matches.group(0).strip()
                 else:
                     return None, None, matches.group(0).strip()
@@ -118,15 +128,30 @@ class SpecimenLabel:
     def _extract_record_number(self):
         matches = re.search('(no|№)[\.\s\:]*(\d+)', self.label_contents, re.IGNORECASE)
         if matches:
-            self.label_contents = self.label_contents.replace(matches.group(0), '')
+            #self.label_contents = self.label_contents.replace(matches.group(0), ' ')
             return matches.group(2)
 
     def _extract_year(self):
         matches = re.search('\n[\s\n\:\.]?((1[789][0-9]|20[0-3])\d)', self.label_contents)
         if matches:
-            self.label_contents = self.label_contents.replace(matches.group(0), '')
+            #self.label_contents = self.label_contents.replace(matches.group(0), ' ')
             return matches.group(1)
 
-    def _extract_names(self):
-        # https://unbiased-coder.com/extract-names-python-nltk/ 
+    def _extract_names(self, text):
+        collected = ['collected', 'coll.', 'coll:', 'collector']
+        for phrase in collected:
+            matches = re.search(phrase, text, re.IGNORECASE)
+            if matches:
+                return text.split(matches.group(0))[-1]
         return None
+        #return find_human_names(text)
+    
+    def _extract_country(self, text):
+        common_countries = ['Tajikistan', 'Afghanistan', 'China', 'Russia', 'Kazakhstan']
+        for country in common_countries:
+            if country.lower() in text.lower():
+                return country
+        
+        for country in pycountry.countries:
+            if country.name.lower() in text.lower():
+                return country.name
