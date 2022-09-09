@@ -5,17 +5,16 @@ import requests
 import helpers
 
 def process_image(image_path):
-    log = logging.getLogger(__name__)
-    log.info(f'Processing image - {image_path}')
+    logging.warning(f'Processing image - {image_path}')
     institution, genus, original_image_name = image_path.split('/')
 
     image_uri = f"https://{os.getenv('MINIO_URI')}/{os.getenv('MINIO_SOURCE_BUCKET')}/{image_path}"
     uuid, catalog_number = helpers.extract_qr(image_uri)
-    log.debug('Extracted QR code')
+    logging.info('Extracted QR code')
 
     target_source_path = f'resources/test/sources/source.txt' # f'resources/{institution.lower()}/sources/source.txt'
     target_source_file = helpers.get_ipt_source_file(target_source_path)
-    log.debug('Retrieved IPT source file')
+    logging.info('Retrieved IPT source file')
     
     if helpers.uuid_already_exists(target_source_file, uuid):
         raise Exception(f'UUID already exists in source file darwin core - {uuid} in {image_path}')
@@ -27,14 +26,17 @@ def process_image(image_path):
         ocr_text = helpers.gv_ocr(image_uri) 
     else:
         raise Exception(f'File has been removed {image_uri}')
-    log.debug('OCR success')
+    logging.info(f'OCR success, results: {ocr_text}')
 
     label = SpecimenLabel(ocr_text, institution, genus, catalog_number, uuid, new_image_uri)
-    log.debug('Label retrieved')
+    logging.info(f'Label object populated created: {label.dwc}')
 
-    if helpers.append_to_source_file(target_source_file, target_source_path, label.dwc):
-        log.debug('Row appended to source file')
+    label.fill_translated_fields(helpers.gtranslate(' '.join(label.label_lines)))
+    logging.info(f'Translated parts of label filled: {label.dwc}')
+
+    if helpers.append_to_source_file(target_source_file, target_source_path, label.get_ipt_dwc()):
+        logging.info('Row appended to source file')
         helpers.move_and_rename(image_path, new_image_path)
-        log.debug('File moved')
+        logging.info('File moved')
     
-    log.info(f'Complete - {image_path}')
+    logging.warning(f'Complete - {image_path}')

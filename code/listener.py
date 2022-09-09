@@ -6,8 +6,7 @@ import time
 from urllib3.exceptions import ReadTimeoutError
 
 def listen():
-    log = logging.getLogger(__name__)
-    log.info(f"Listening to {os.getenv('MINIO_URI')} / os.getenv('MINIO_SOURCE_BUCKET') ...")
+    logging.info(f"Listening to {os.getenv('MINIO_URI')} / os.getenv('MINIO_SOURCE_BUCKET') ...")
     client = Minio(os.getenv('MINIO_URI'), access_key=os.getenv('MINIO_ACCESS_KEY'), secret_key=os.getenv('MINIO_SECRET_KEY'))
 
     try:
@@ -17,12 +16,12 @@ def listen():
                     obj = record['s3']['object']
                     if obj['contentType'] == 'image/jpeg' or obj['contentType'] == 'image/tiff':
                         try:
-                            log.info(f'Processing {obj["key"]}')
+                            logging.info(f'Processing {obj["key"]}')
                             process_image(obj['key'])
                         except Exception as e:
-                            log.error(f"Image processing failed - {obj['key']}. Error {e}")
+                            logging.error(f"Image processing failed - {obj['key']}. Error {e}")
     except ReadTimeoutError as e:
-        log.error('Python minio listen_bucket_notification timeout, restarting...')
+        logging.error('Python minio listen_bucket_notification timeout, restarting...')
         listen()
 
 if __name__ == '__main__':
