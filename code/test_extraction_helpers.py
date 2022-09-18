@@ -52,6 +52,10 @@ class ExtranctionHelpers(unittest.TestCase):
         self.assertEqual(eh.elevation(eh.lines('test text 4 - 881')), '881')  # gcv often reads h as 4 when it's near numbers
         self.assertEqual(eh.elevation(eh.lines('test text 2 700-881ft')), '700-881ft')  # gcv often reads h as 4 when it's near numbers
     
+    def test_elevation_on_different_line(self):
+        lines = ['Памир , Алай , Бадахшан', '4 400', 'Высота над уровнем моря 19 646 Г.', '№o']
+        self.assertEqual(eh.elevation(lines), '4400')
+
     def test_min_max_elevation(self):
         self.assertEqual(eh.min_max_elevation_in_meters('881'), ('881', '881'))
         self.assertEqual(eh.min_max_elevation_in_meters('881-1200'), ('881', '1200'))
