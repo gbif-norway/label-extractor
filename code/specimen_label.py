@@ -8,7 +8,7 @@ class SpecimenLabel:
     def __init__(self, verbatim, institution, genus, catalog_number, uuid, associated_media_uri):
         self.verbatim = verbatim
         self.translation = None
-        
+
         self.label_lines = extraction_helpers.lines(verbatim)
         i, verbatim_id = extraction_helpers.verbatim_identification(self.label_lines, genus)
 
@@ -28,7 +28,7 @@ class SpecimenLabel:
 
         self.dwc = {
             'institutionCode': institution,
-            'catalogNumber': catalog_number,
+            'catalognumber': catalog_number,
             'genus': genus,
             'occurrenceID': uuid,
             'associatedMedia': associated_media_uri,

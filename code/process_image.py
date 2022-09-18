@@ -10,8 +10,8 @@ def process_image(image_path):
 
     image_uri = f"https://{os.getenv('MINIO_URI')}/{os.getenv('MINIO_SOURCE_BUCKET')}/{image_path}"
     uuid, catalog_number = helpers.extract_qr(image_uri)
-    logging.info('Extracted QR code')
-
+    logging.info('Extracted QR codes')
+    
     target_source_path = f'resources/test/sources/source.txt' # f'resources/{institution.lower()}/sources/source.txt'
     target_source_file = helpers.get_ipt_source_file(target_source_path)
     logging.info('Retrieved IPT source file')
@@ -27,10 +27,10 @@ def process_image(image_path):
     else:
         raise Exception(f'File has been removed {image_uri}')
     logging.info(f'OCR success, results: {ocr_text}')
-
+    
     label = SpecimenLabel(ocr_text, institution, genus, catalog_number, uuid, new_image_uri)
     logging.info(f'Label object populated created: {label.dwc}')
-
+    
     label.fill_translated_fields(helpers.gtranslate(' '.join(label.label_lines)))
     logging.info(f'Translated parts of label filled: {label.dwc}')
 

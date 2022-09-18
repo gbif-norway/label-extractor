@@ -26,7 +26,7 @@ def extract_qr(image_uri):
     if not uuid:
         raise Exception(f'No UUID detected in {image_uri} - {codes}')
     codes.remove(uuid)
-
+    
     return uuid, codes.pop()
 
 def is_uuid4(test_uuid, version=4):

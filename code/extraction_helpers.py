@@ -67,30 +67,43 @@ def verbatim_identification_no_genus(lines):
 
 def elevation(lines):
     for line in lines:
-        numbers = '([1-9][0-9]{2,3}[\.\s]*(-\s*[1-9][0-9]{2,3}[\d\s]*)?)'
+        unspaced_line = line.replace(' ', '')
+        numbers = '([1-9][0-9]{2,3}(-[1-9][0-9]{2,3})?)'
         units = '([mм]|ft)'
-        prefix = '(alt|h|altitude)[\-\.\s:]*'
+        prefix = '(alt|h|altitude)[\-\.:]*'
 
-        matches = re.search(f'{prefix}({numbers}{units}?)', line, re.IGNORECASE|re.UNICODE)
+        matches = re.search(f'{prefix}({numbers}{units}?)', unspaced_line, re.IGNORECASE|re.UNICODE)
         if matches:
-            return matches.group(2).strip()
+            return matches.group(2)
         
-        matches = re.search(prefix + numbers, line, re.IGNORECASE|re.UNICODE)
+        matches = re.search(prefix + numbers, unspaced_line, re.IGNORECASE|re.UNICODE)
         if matches:
-            return matches.group(2).strip()
+            return matches.group(2)
         
-        matches = re.search(f'[\s\n]+{numbers}{units}', line, re.IGNORECASE|re.UNICODE)
+        matches = re.search(f'[\n\s]+{numbers}\s*{units}', line, re.IGNORECASE|re.UNICODE)
         if matches:
-            return matches.group(0).strip()
+            return matches.group(0).replace(' ', '')
 
+        matches = re.search(f'[24]-[1-9][0-9]{2,3}{units}', unspaced_line, re.IGNORECASE|re.UNICODE)
+        if matches:
+            return matches.group(0).replace('4-', '')
     return None
 
-def min_max_elevation_in_meters(lines):
-    return None, None
+def min_max_elevation_in_meters(text):  # Has spaces stripped
+    if not text:
+        return None, None
+    number_matches = re.findall('[1-9][0-9]{2,3}', text)
+    max = number_matches.pop() 
+    min = number_matches.pop() if number_matches else max
+    units = re.search('([mм]|ft)', text)
+    if units and units.group(0) == 'ft':
+        min = round(int(min) / 3.281)
+        max = round(int(max) / 3.281)
+    return str(min), str(max)
 
 def record_number(lines):
     for line in lines:
-        matches = re.search('(no|№)[\.\s\:]*(\d+)', line, re.IGNORECASE)
+        matches = re.search('(no|№)[\.\s\:]*(\d+)', line, re.IGNORECASE|re.UNICODE)
         if matches:
             return matches.group(2)
     return None

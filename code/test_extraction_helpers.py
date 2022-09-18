@@ -27,17 +27,25 @@ class ExtranctionHelpers(unittest.TestCase):
             self.assertEqual(genus, 'Freesia')
 
     def test_elevation(self):
-        self.assertEqual(eh.elevation(eh.lines('Altitude 881 m')), '881 m')
-        self.assertEqual(eh.elevation(eh.lines('Text text Alt: 881 m')), '881 m')
-        self.assertEqual(eh.elevation(eh.lines('This species was collected at 881 m and ')), '881 m')
+        self.assertEqual(eh.elevation(eh.lines('Altitude 881 m')), '881m')
+        self.assertEqual(eh.elevation(eh.lines('Text text Alt: 881 m')), '881m')
+        self.assertEqual(eh.elevation(eh.lines('This species was collected at 881 m and ')), '881m')
         self.assertEqual(eh.elevation(eh.lines('Alt. 881')), '881')
         self.assertEqual(eh.elevation(eh.lines('Alt: 881')), '881')
         self.assertEqual(eh.elevation(eh.lines('Alt - 881')), '881')
         self.assertEqual(eh.elevation(eh.lines('Alt- 881')), '881')
+        self.assertEqual(eh.elevation(eh.lines('h - 881')), '881')
+        self.assertEqual(eh.elevation(eh.lines('test text 4 - 881')), '881')  # gcv often reads h as 4 when it's near numbers
         self.assertEqual(eh.elevation(eh.lines('Alt 881ft')), '881ft')
         self.assertEqual(eh.elevation(eh.lines('A6232\nVolpin Myras qual\nБ.А. Федченко : 2\n915')), None)
         self.assertEqual(eh.elevation(eh.lines('Some text h- 1700')), '1700')
-        self.assertEqual(eh.elevation(eh.lines('Some text h- 10')), None)
+        self.assertEqual(eh.elevation(eh.lines('Some text h- 10')), None)  # Don't match unlikely sounding numbers
+
+    def test_min_max_elevation(self):
+        self.assertEqual(eh.min_max_elevation_in_meters('881'), ('881', '881'))
+        self.assertEqual(eh.min_max_elevation_in_meters('881-1200'), ('881', '1200'))
+        self.assertEqual(eh.min_max_elevation_in_meters('800ft'), ('244', '244'))
+        self.assertEqual(eh.min_max_elevation_in_meters('881-1200m'), ('881', '1200'))
 
     def test_names(self):
         tests = [
