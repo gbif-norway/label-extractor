@@ -12,7 +12,7 @@ def process_image(image_path):
     uuid, catalog_number = helpers.extract_qr(image_uri)
     logging.info('Extracted QR codes')
     
-    target_source_path = f'resources/test/sources/source.txt' # f'resources/{institution.lower()}/sources/source.txt'
+    target_source_path = f'resources/{institution.lower()}/sources/source.txt'
     target_source_file = helpers.get_ipt_source_file(target_source_path)
     logging.info('Retrieved IPT source file')
     
