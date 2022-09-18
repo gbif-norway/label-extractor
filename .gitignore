@@ -45,3 +45,4 @@ venv.bak/
 img-src/
 minio-imgs/
 gapi-secret.json
+source.txt
