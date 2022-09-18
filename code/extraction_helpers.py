@@ -68,15 +68,16 @@ def verbatim_identification_no_genus(lines):
 def elevation(lines):
     for line in lines:
         unspaced_line = line.replace(' ', '')
-        numbers = '([1-9][0-9]{2,3}(-[1-9][0-9]{2,3})?)'
-        units = '([mм]|ft)'
-        prefix = '(alt|h|altitude)[\-\.:]*'
+        numbers = r'([1-9][0-9]{2,3}(-[1-9][0-9]{2,3})?)'
+        units = r'([mм]|ft)'
+        non_digit_la = r'(?!\d)'
+        prefix = r'(alt|h|altitude)[\-\.:]*'
 
-        matches = re.search(f'{prefix}({numbers}{units}?)', unspaced_line, re.IGNORECASE|re.UNICODE)
+        matches = re.search(f'{prefix}({numbers}{units}?){non_digit_la}', unspaced_line, re.IGNORECASE|re.UNICODE)
         if matches:
             return matches.group(2)
         
-        matches = re.search(prefix + numbers, unspaced_line, re.IGNORECASE|re.UNICODE)
+        matches = re.search(f'{prefix}{numbers}{non_digit_la}', unspaced_line, re.IGNORECASE|re.UNICODE)
         if matches:
             return matches.group(2)
         
@@ -84,9 +85,9 @@ def elevation(lines):
         if matches:
             return matches.group(0).replace(' ', '')
 
-        matches = re.search(f'[24]-[1-9][0-9]{2,3}{units}', unspaced_line, re.IGNORECASE|re.UNICODE)
+        matches = re.search(f'[24][-:]+({numbers}{units}?){non_digit_la}', unspaced_line, re.IGNORECASE|re.UNICODE)
         if matches:
-            return matches.group(0).replace('4-', '')
+            return matches.group(1)
     return None
 
 def min_max_elevation_in_meters(text):  # Has spaces stripped
