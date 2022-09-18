@@ -40,8 +40,8 @@ class SpecimenLabel:
             'recordNumber': extraction_helpers.record_number(self.label_lines),
             'year': extraction_helpers.year(self.label_lines),
             'dynamicProperties': {
-                'verbatimTranscription': self.verbatim.replace('\n', '#'),
-                'verbatimTransliteration': cyrtranslit.to_latin(self.verbatim.replace('\n', ' '), 'ru'),
+                'verbatimTranscription': extraction_helpers.ipt_friendly_string(self.verbatim),
+                'verbatimTransliteration': cyrtranslit.to_latin(extraction_helpers.ipt_friendly_string(self.verbatim), 'ru'),
             }   
         }
 
@@ -53,7 +53,6 @@ class SpecimenLabel:
 
     def fill_translated_fields(self, translated):
         self.translation = translated
-        self.dwc['dynamicProperties']['verbatimTranslation'] = translated.replace('\n', '#')
+        self.dwc['dynamicProperties']['verbatimTranslation'] = extraction_helpers.ipt_friendly_string(translated)
         self.dwc['recordedBy'] = extraction_helpers.names(extraction_helpers.lines(translated))
         self.dwc['country'] = extraction_helpers.country(extraction_helpers.lines(translated))
-

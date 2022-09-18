@@ -159,3 +159,6 @@ def _get_latin_words(line: str) -> List[str]:
     only_words = re.sub('[^A-Za-z()\s]', '', line)
     stripped_spaces = re.sub('\s+', ' ', only_words)
     return re.split('\s', stripped_spaces.strip())
+
+def ipt_friendly_string(s):
+    return s.replace('\n', '#').replace("'", '').replace('"', '')

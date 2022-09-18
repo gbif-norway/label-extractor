@@ -92,6 +92,7 @@ def uuid_already_exists(source, uuid):
 def append_to_source_file(source, target_source_path, dwc):
     dwc['modified'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
     appended = pd.concat([source, pd.DataFrame([dwc])])
+
     appended.to_csv('/srv/code/source.txt', encoding='utf-8', index=False) # appended.iloc[-1:].to_csv('/srv/code/source.txt', encoding='utf-8', index=False, header=False)
     logging.info(f'Appended: {dwc}')
 
