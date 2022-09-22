@@ -3,6 +3,7 @@ version: '3'
 services:
   transcriber:
     build: .
+    restart: always
     command: python /srv/code/listener.py
     volumes:
       - ./code:/srv/code
