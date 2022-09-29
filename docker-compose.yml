@@ -1,11 +1,12 @@
 version: '3'
 
 services:
-  transcriber:
+  label_extractor:
     build: .
+    image: gbifnorway/label-extractor:latest
     restart: always
     command: python /srv/code/listener.py
-    volumes:
-      - ./code:/srv/code
-    env_file:
-      - .env
+    #volumes:
+    #  - ./code:/srv/code
+    #env_file:
+    #  - .env
