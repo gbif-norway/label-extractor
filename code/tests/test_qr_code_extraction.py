@@ -1,6 +1,3 @@
-import cv2 
-import skimage
-from pathlib import Path
 import unittest
 from qr_code.detector import extract_qr
 
@@ -12,8 +9,6 @@ class QRTests(unittest.TestCase):
         qrs = extract_qr('tests/qr-code-cases/2_qr_codes_eg_2.jpg')
         self.assertEqual(qrs[0], 'fc4e2049-f661-45d2-8a35-e32b0aa3ae61')
         self.assertEqual(qrs[1], 'Khatlon049')
-
-    def test_problematic(self):
         qrs = extract_qr('tests/qr-code-cases/2_qr_codes_eg_3.jpg')
         self.assertEqual(qrs[0], 'cc1ae5c6-a502-4b3a-a414-ddd786d50270')
         self.assertEqual(qrs[1], 'Khatlon052')
