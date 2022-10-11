@@ -2,17 +2,17 @@ import uuid
 import cv2
 import skimage
 from pyzbar.pyzbar import decode
+from pyzbar.pyzbar import ZBarSymbol
 
 def extract_qr(image_uri):
     img = skimage.io.imread(image_uri)
-    grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    min_dim = min(img.shape[:2])
-    block_size = int(min_dim/3)
-    block_size += 0 if block_size%2 == 1 else 1 # blockSize should be odd
-    image_bw = cv2.adaptiveThreshold(grey, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, 2)
 
-    qr_data = decode(image_bw)
-
+    # try 1
+    im = cv2.imread(image_uri, cv2.IMREAD_GRAYSCALE)
+    blur = cv2.GaussianBlur(im, (5, 5), 0)
+    ret, bw_im = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    qr_data = decode(bw_im, symbols=[ZBarSymbol.QRCODE])
+    
     if not len(qr_data):
         raise Exception(f'No QR codes detected in {image_uri}')
 
