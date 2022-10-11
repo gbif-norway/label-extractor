@@ -10,4 +10,4 @@ scikit-image==0.19.3
 pandas==1.4.4
 pycountry
 imagecodecs
-
+opencv-python
