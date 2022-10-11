@@ -1,5 +1,5 @@
 import unittest
-import extraction_helpers as eh
+import label_dwc.extractor as eh
 
 class ExtranctionHelpers(unittest.TestCase):
     def test_verbatim_identification(self):

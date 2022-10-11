@@ -2,22 +2,16 @@ import cv2
 import skimage
 from pathlib import Path
 import unittest
-from pyzbar.pyzbar import decode
+from qr_code.detector import extract_qr
 
 class QRTests(unittest.TestCase):
-    def test_all_qrs_together(self):
-        all_qr_tests = Path('tests/qr-code-cases').glob('*.jpg')
-
-        for qr in all_qr_tests:
-            cvimg = skimage.io.imread(qr)
-            grey = cv2.cvtColor(cvimg, cv2.COLOR_BGR2GRAY)
-            min_dim = min(cvimg.shape[:2])
-            block_size = int(min_dim/3)
-            block_size += 0 if block_size%2 == 1 else 1 # blockSize should be odd
-            image_bw = cv2.adaptiveThreshold(grey, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, 2)
-
-            qr_data = decode(image_bw)
-            self.assertGreaterEqual(len(qr_data), 1)
+    def test_2_qr_code_images(self):
+        qrs = extract_qr('tests/qr-code-cases/2_qr_codes_eg_1.jpg')
+        self.assertEqual(qrs[0], '9e952a9c-cca3-4baa-9f7a-e87c9b274706')
+        self.assertEqual(qrs[1], 'Khatlon087')
+        qrs = extract_qr('tests/qr-code-cases/2_qr_codes_eg_2.jpg')
+        self.assertEqual(qrs[0], 'fc4e2049-f661-45d2-8a35-e32b0aa3ae61')
+        self.assertEqual(qrs[1], 'Khatlon049')
 
 if __name__ == "__main__":
     unittest.main()
