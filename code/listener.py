@@ -2,7 +2,6 @@ from minio import Minio
 from process_image import process_image
 import os
 import logging
-import time
 from urllib3.exceptions import ReadTimeoutError
 
 def listen():
