@@ -4,4 +4,4 @@ RUN apt-get update && \
 COPY requirements.txt /tmp/requirements.txt
 COPY ./code /srv/code
 RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt
-ENTRYPOINT ["python", "/srv/code/listener.py"]
+CMD ["python", "/srv/code/listener.py"]
