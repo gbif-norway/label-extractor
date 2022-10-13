@@ -5,5 +5,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: docker compose -f docker-compose.github-test.yml up --abort-on-container-exit --exit-code-from test
+      - run: docker compose -f docker-compose.github-test.yml up --build --abort-on-container-exit --exit-code-from test
 
