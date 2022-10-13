@@ -48,7 +48,7 @@ class SpecimenLabel:
     def get_ipt_dwc(self):
         dwc = self.dwc
         dwc['dynamicProperties'] = json.dumps(self.dwc['dynamicProperties'], ensure_ascii=False).encode('utf8').decode()
-        dwc['dynamicProperties'].replace('\n', '#')
+        dwc['dynamicProperties'].replace('\n', '#').replace(',', ' ').replace('\t', '')
         return dwc
 
     def fill_translated_fields(self, translated):
