@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  label_extractor:
+    build: .
+    image: gbifnorway/label-extractor:latest
+    volumes:
+      - ./code:/srv/code
+    command: python -m unittest
