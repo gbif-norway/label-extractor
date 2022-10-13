@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  label_extractor:
+  test:
     build: .
     image: gbifnorway/label-extractor:latest
     volumes:
