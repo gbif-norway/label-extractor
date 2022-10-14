@@ -27,7 +27,7 @@ def extract_qr(image_uri):
         raise Exception(f'No UUID detected in {image_uri} - {codes}')
     codes.remove(uuid)
     
-    return uuid, codes.pop()
+    return uuid # The second code could be a catalogNumber, but for now they should just use uuids, codes.pop()
 
 def is_uuid4(test_uuid, version=4):
     try:

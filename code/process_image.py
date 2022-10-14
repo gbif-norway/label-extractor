@@ -11,7 +11,7 @@ def process_image(image_path):
     institution, genus, original_image_name = image_path.split('/')
 
     image_uri = f"https://{os.getenv('MINIO_URI')}/{os.getenv('MINIO_SOURCE_BUCKET')}/{image_path}"
-    uuid, catalog_number = extract_qr(image_uri)
+    uuid = extract_qr(image_uri)
     logging.info('Extracted QR codes')
     
     target_source_path = f'resources/{institution.lower()}/sources/source.txt'
@@ -31,7 +31,7 @@ def process_image(image_path):
         raise Exception(f'File has been removed {image_uri}')
     logging.info(f'OCR success, results: {ocr_text}')
     
-    label = SpecimenLabel(ocr_text, institution, genus, catalog_number, uuid, new_image_uri)
+    label = SpecimenLabel(ocr_text, institution, genus, uuid, uuid, new_image_uri)
     logging.info(f'Label object populated created: {label.dwc}')
     
     label.fill_translated_fields(translate.gtranslate(' '.join(label.label_lines)))
