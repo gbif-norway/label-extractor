@@ -8,4 +8,6 @@ services:
       - .env
     volumes:
       - ./code:/srv/code
-    command: python -m unittest
+      - ./secrets:/srv/secrets
+    command: tail -f /dev/null
+    
