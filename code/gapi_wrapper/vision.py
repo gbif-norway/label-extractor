@@ -1,23 +1,15 @@
-import io
 import logging
 from google.cloud import vision
 
-def gv_ocr(image_uri):
+def gv_ocr(content):
     gvclient = vision.ImageAnnotatorClient()
-    image = vision.Image()
-    image.source.image_uri = image_uri
-    logging.info(f'Attempting to ocr via Google Cloud Vision - {image_uri}')
-    response = gvclient.document_text_detection(image=image)
+    image = vision.Image(content=content)
 
+    logging.info(f'Attempting to ocr via Google Cloud Vision - {image}')
+    response = gvclient.document_text_detection(image=image)
     if response.error.code:
-        logging.error(f'Error from Google Cloud Vision fetching remotely - {response.error}')
-        with io.open(image_uri, 'rb') as image_file:
-                content = image_file.read()
-                image = vision.Image(content=content)
-                response = gvclient.document_text_detection(image=image)
-                if response.error.code:
-                    raise Exception(f"Error from Google Cloud Vision - {response.error}")
-    
+        raise Exception(f"Error from Google Cloud Vision - {response.error}")
+
     logging.info(f'Successfully ocred')
     return sort_and_flatten(response.full_text_annotation)
 

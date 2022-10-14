@@ -37,6 +37,7 @@ class SpecimenLabel:
             'minimumElevationInMeters': min,
             'maximumElevationInMeters': max,
             'verbatimElevation': elevation,
+            'basisOfRecord': 'PreservedSpecimen',
             'recordNumber': extractor.record_number(self.label_lines),
             'year': extractor.year(self.label_lines),
             'dynamicProperties': {

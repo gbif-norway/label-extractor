@@ -24,8 +24,9 @@ def process_image(image_path):
     new_image_path = f"{os.getenv('MINIO_TARGET_PREFIX')}/{institution}/{uuid}.jpg"
     new_image_uri = f"https://{os.getenv('MINIO_URI')}/{os.getenv('MINIO_TARGET_BUCKET')}/{new_image_path}"
 
-    if requests.get(image_uri).status_code == 200:
-        ocr_text = vision.gv_ocr(image_uri) 
+    img = requests.get(image_uri)
+    if img.status_code == 200:
+        ocr_text = vision.gv_ocr(img.content) 
     else:
         raise Exception(f'File has been removed {image_uri}')
     logging.info(f'OCR success, results: {ocr_text}')
