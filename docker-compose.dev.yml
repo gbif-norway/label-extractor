@@ -9,5 +9,7 @@ services:
     volumes:
       - ./code:/srv/code
       - ./secrets:/srv/secrets
-    command: tail -f /dev/null
-    
+    #command: tail -f /dev/null
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true
