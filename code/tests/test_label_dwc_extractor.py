@@ -62,6 +62,9 @@ class ExtranctionHelpers(unittest.TestCase):
         self.assertEqual(eh.min_max_elevation_in_meters('800ft'), ('244', '244'))
         self.assertEqual(eh.min_max_elevation_in_meters('881-1200m'), ('881', '1200'))
 
+    def test_no_elevation(self):
+        self.assertEqual(eh.elevation(eh.lines('no elevation data and no numbers')), None)
+
     def test_names(self):
         tests = [
             'coll. B. A. Sharipov and others\nVulpia',
