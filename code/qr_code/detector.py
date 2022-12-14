@@ -10,9 +10,7 @@ from skimage.morphology import binary_dilation, binary_erosion
 def extract_qr(image_uri):
     im = skimage.io.imread(image_uri)
     cvgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    height, width, dimensions = im.shape
-    halved = cvgray[int(height/2):height, 0:width]
-    ret, bw_im = cv2.threshold(halved, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    ret, bw_im = cv2.threshold(cvgray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     qr_data = decode(bw_im, symbols=[ZBarSymbol.QRCODE])
     
     if not len(qr_data):
