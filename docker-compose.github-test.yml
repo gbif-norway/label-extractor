@@ -1,9 +1,23 @@
 version: '3'
 
 services:
-  test:
-    build: .
-    image: gbifnorway/label-extractor:latest
+  dwc_writer:
+    build: ./dwc_writer
     volumes:
-      - ./code:/srv/code
+      - ./dwc_writer/code:/srv/code
+    command: python -m unittest
+  extractor:
+    build: ./extractor
+    volumes:
+      - ./extractor/code:/srv/code
+    command: python -m unittest
+  qr_code:
+    build: ./qr_code
+    volumes:
+      - ./qr_code/code:/srv/code
+    command: python -m unittest
+  gapi_wrapper:
+    build: ./gapi_wrapper
+    volumes:
+      - ./gapi_wrapper/code:/srv/code
     command: python -m unittest
