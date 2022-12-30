@@ -35,7 +35,7 @@ def sort_and_flatten(document):
     logging.info(f'Remaining text: {remaining}')
     return remaining
 
-def cutoff(text):
+def cutoff(text):  # We need a better way to take rulers out
     triggers = ['MADE IN CHINA', 'HORSE BRAND', 'Plantae Tadshikistanicae', 'BRAND NO . 1001']
     for t in triggers:
         if t in text:

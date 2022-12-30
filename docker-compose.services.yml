@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - ./rabbit-data:/var/lib/rabbitmq/mnesia/
+    networks:
+      - rabbitmq
+  dwc_writer:
+    build: ./dwc_writer
+    image: gbifnorway/dwc-writer:latest
+    networks:
+      - rabbitmq
+    depends_on: 
+      - rabbit
+    volumes:
+      - ./dwc_writer/code:/srv/code
+  extractor:
+    build: ./extractor
+    image: gbifnorway/extractor:latest
+    networks:
+      - rabbitmq
+    depends_on: 
+      - rabbit
+    volumes:
+      - ./extractor/code:/srv/code
+  qr_code:
+    build: ./qr_code
+    image: gbifnorway/qr_code:latest
+    networks:
+      - rabbitmq
+    depends_on: 
+      - rabbit
+    volumes:
+      - ./qr_code/code:/srv/code
+  gapi_wrapper:
+    build: ./gapi_wrapper
+    image: gbifnorway/gapi_wrapper:latest
+    networks:
+      - rabbitmq
+    depends_on: 
+      - rabbit
+    volumes:
+      - ./gapi_wrapper/code:/srv/code
+
+networks:
+  rabbitmq:
+    driver: bridge

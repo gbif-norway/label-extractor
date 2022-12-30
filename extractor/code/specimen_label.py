@@ -1,6 +1,6 @@
 import cyrtranslit 
 import logging
-from label_dwc import extractor
+import extractor
 import json
 
 

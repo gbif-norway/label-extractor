@@ -3,11 +3,9 @@ import cv2
 import skimage
 from pyzbar.pyzbar import decode
 from pyzbar.pyzbar import ZBarSymbol
-from skimage.color import rgb2gray
-from skimage import filters # threshold_otsu, threshold_isodata
-from skimage.morphology import binary_dilation, binary_erosion
+import pika
 
-def extract_qr(image_uri):
+def extract_qrs(image_uri):
     im = skimage.io.imread(image_uri)
     cvgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     ret, bw_im = cv2.threshold(cvgray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -20,15 +18,40 @@ def extract_qr(image_uri):
     if len(codes) > 2:
         raise Exception(f'More than 2 QR codes/barcodes detected in {image_uri} - {codes}')
 
-    uuid = next((x for x in codes if is_uuid4(x)), False)
+    uuid = None
+    barcode = None
+    for x in codes:
+        if is_uuid4(x):
+            uuid = x
+        else:
+            barcode = x
+
     if not uuid:
         raise Exception(f'No UUID detected in {image_uri} - {codes}')
-    codes.remove(uuid)
-    
-    return uuid # The second code could be a catalogNumber, but for now they should just use uuids, codes.pop()
+ 
+    return uuid, barcode
 
 def is_uuid4(test_uuid, version=4):
     try:
         return uuid.UUID(test_uuid).version == version
     except ValueError:
         return False
+
+def on_message(ch, method, properties, body):
+    message = body.decode('UTF-8')
+    print(message)
+
+def main():
+    connection_params = pika.ConnectionParameters(host='localhost')
+    connection = pika.BlockingConnection(connection_params)
+    channel = connection.channel()
+
+    channel.queue_declare(queue='testing')
+
+    channel.basic_consume(queue='testing', on_message_callback=on_message, auto_ack=True)
+
+    print('Subscribed to testing, waiting for messages...')
+    channel.start_consuming()
+
+if __name__ == '__main__':
+    main()
