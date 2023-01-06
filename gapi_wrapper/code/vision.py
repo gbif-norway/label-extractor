@@ -11,7 +11,7 @@ def gv_ocr(content):
         raise Exception(f"Error from Google Cloud Vision - {response.error}")
 
     logging.info(f'Successfully ocred')
-    return sort_and_flatten(response.full_text_annotation)
+    return response.full_text_annotation
 
 def sort_and_flatten(document):
     blocks = []
